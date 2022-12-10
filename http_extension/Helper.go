@@ -7,6 +7,9 @@ import (
 	json "github.com/matehaxor03/holistic_json/json"
 )
 
+func Nop() {
+	
+}
 
 func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors []error) {
 	keys := result.Keys()
