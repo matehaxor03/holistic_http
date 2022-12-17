@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	json "github.com/matehaxor03/holistic_json/json"
+	common "github.com/matehaxor03/holistic_common/common"
 )
 
 func Nop() {
@@ -18,33 +19,31 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 		write_response_errors = append(write_response_errors, fmt.Errorf(fmt.Sprintf("number of root keys is incorrect %s",keys)))
 	}
 	
-	
+	var inner_map_value *json.Map
 	inner_map_found := false
 	if len(keys) == 1 {
 		inner_map, inner_map_errors := result.GetMap(keys[0])
 		if inner_map_errors != nil {
 			write_response_errors = append(write_response_errors, inner_map_errors...)
-		} 
-		
-		if inner_map == nil {
+		} else if common.IsNil(inner_map) {
 			write_response_errors = append(write_response_errors, fmt.Errorf("inner map is nil"))
 			inner_map_found = false
 		} else {
 			inner_map_found = true
+			inner_map_value = inner_map
 		}
 	}
 
-
 	if len(write_response_errors) > 0 {
 		if inner_map_found {
-			(result[keys[0]].(json.Map))["data"] = nil
-			(result[keys[0]].(json.Map))["[errors]"] = write_response_errors
+			inner_map_value.SetNil("data")
+			inner_map_value.SetErrors("[errors]", &write_response_errors)
 		} else {
 			result["unknown"] = json.Map{"data":nil, "[errors]":write_response_errors}
 		}
 	} else {
 		if inner_map_found {
-			(result[keys[0]].(json.Map))["[errors]"] = write_response_errors
+			inner_map_value.SetErrors("[errors]", &write_response_errors)
 		} else {
 			result["unknown"] = json.Map{"data":nil, "[errors]":write_response_errors}
 		}
