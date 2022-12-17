@@ -18,24 +18,32 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 		write_response_errors = append(write_response_errors, fmt.Errorf(fmt.Sprintf("number of root keys is incorrect %s",keys)))
 	}
 	
-	if len(write_response_errors) > 0 {
-		inner_map_found := false
-		if len(keys) == 1 {
-			inner_map, inner_map_errors := result.GetMap(keys[0])
-			if inner_map_errors != nil {
-				write_response_errors = append(write_response_errors, inner_map_errors...)
-			} 
-			
-			if inner_map == nil {
-				write_response_errors = append(write_response_errors, fmt.Errorf("inner map is nil"))
-				inner_map_found = false
-			} else {
-				inner_map_found = true
-			}
+	
+	inner_map_found := false
+	if len(keys) == 1 {
+		inner_map, inner_map_errors := result.GetMap(keys[0])
+		if inner_map_errors != nil {
+			write_response_errors = append(write_response_errors, inner_map_errors...)
+		} 
+		
+		if inner_map == nil {
+			write_response_errors = append(write_response_errors, fmt.Errorf("inner map is nil"))
+			inner_map_found = false
+		} else {
+			inner_map_found = true
 		}
+	}
 
+
+	if len(write_response_errors) > 0 {
 		if inner_map_found {
 			(result[keys[0]].(json.Map))["data"] = nil
+			(result[keys[0]].(json.Map))["[errors]"] = write_response_errors
+		} else {
+			result["unknown"] = json.Map{"data":nil, "[errors]":write_response_errors}
+		}
+	} else {
+		if inner_map_found {
 			(result[keys[0]].(json.Map))["[errors]"] = write_response_errors
 		} else {
 			result["unknown"] = json.Map{"data":nil, "[errors]":write_response_errors}
