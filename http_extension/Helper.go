@@ -43,9 +43,9 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 		}
 	} else {
 		if inner_map_found {
-			inner_map_value.SetErrors("[errors]", &write_response_errors)
+			inner_map_value.SetErrors("[errors]", nil)
 		} else {
-			result["unknown"] = json.Map{"data":nil, "[errors]":write_response_errors}
+			result["unknown"] = json.Map{"data":nil, "[errors]":nil}
 		}
 	}
 
