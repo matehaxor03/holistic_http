@@ -14,6 +14,11 @@ func Nop() {
 
 func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors []error) {
 	keys := result.Keys()
+
+	if common.IsNil(write_response_errors) {
+		var temp_errors []error
+		write_response_errors = temp_errors
+	}
 	
 	if len(keys) != 1 {
 		write_response_errors = append(write_response_errors, fmt.Errorf(fmt.Sprintf("number of root keys is incorrect %s",keys)))
@@ -31,8 +36,16 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 		} else {
 			inner_map_found = true
 			inner_map_value = inner_map
+
+			inner_map_errors, inner_map_errors_errors := inner_map_value.GetErrors("[errors]")
+			if inner_map_errors_errors != nil {
+				write_response_errors = append(write_response_errors, inner_map_errors_errors...)
+			} else if inner_map_errors != nil {
+				write_response_errors = append(write_response_errors, inner_map_errors...)
+			}
 		}
 	}
+
 
 	if len(write_response_errors) > 0 {
 		if inner_map_found {
@@ -59,6 +72,6 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 	if result_as_string_errors == nil {
 		w.Write([]byte(json_payload_builder.String()))
 	} else {
-		w.Write([]byte(fmt.Sprintf("{\"unknown\":{\"[errors]\":\"%s\", \"data\":null}}", strings.ReplaceAll(fmt.Sprintf("%s", result_as_string_errors), "\"", "\\\""))))
+		w.Write([]byte(fmt.Sprintf("{\"unknown\":{\"[errors]\":\"%s\", \"data\":null}}", strings.ReplaceAll(fmt.Sprintf("%s", write_response_errors), "\"", "\\\""))))
 	}
 }
