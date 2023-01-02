@@ -36,7 +36,7 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 
 	if len(write_response_errors) > 0 {
 		result.SetNil("data")
-		result.SetErrors("[errors]", &write_response_errors)
+		result.SetErrors("[errors]", write_response_errors)
 	} else {
 		result.SetErrors("[errors]", nil)
 	}
