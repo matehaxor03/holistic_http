@@ -38,7 +38,7 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 		result.SetNil("data")
 		result.SetErrors("[errors]", write_response_errors)
 	} else {
-		result.SetErrors("[errors]", nil)
+		result.SetNil("[errors]")
 	}
 
 	var json_payload_builder strings.Builder
