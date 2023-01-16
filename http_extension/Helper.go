@@ -12,7 +12,7 @@ func Nop() {
 	
 }
 
-func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors []error) {
+func WriteResponse(w http.ResponseWriter, result *json.Map, write_response_errors []error) {
 	
 	if common.IsNil(write_response_errors) {
 		var temp_errors []error
@@ -20,7 +20,7 @@ func WriteResponse(w http.ResponseWriter, result json.Map, write_response_errors
 	}
 
 	if common.IsNil(result) {
-		temp_result := json.Map{}
+		temp_result := json.NewMap()
 		result = temp_result
 	}
 	
